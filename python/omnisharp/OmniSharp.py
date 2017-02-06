@@ -1,5 +1,20 @@
-import vim, urllib2, urllib, urlparse, logging, json, os, os.path, cgi, types, threading
-import asyncrequest
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import logging
+import json
+import os
+import os.path
+import types
+
+try:
+    from urllib import parse as urlparse
+    from urllib import request
+except ImportError:
+    import urllib2 as request
+    import urlparse
+
+import vim  # pylint: disable=import-error
 
 logger = logging.getLogger('omnisharp')
 logger.setLevel(logging.WARNING)
@@ -33,9 +48,9 @@ def getResponse(endPoint, additional_parameters=None, timeout=None):
 
     target = urlparse.urljoin(host, endPoint)
 
-    proxy = urllib2.ProxyHandler({})
-    opener = urllib2.build_opener(proxy)
-    req = urllib2.Request(target)
+    proxy = request.ProxyHandler({})
+    opener = request.build_opener(proxy)
+    req = request.Request(target)
     req.add_header('Content-Type', 'application/json')
 
     try:
@@ -74,7 +89,7 @@ def gotoDefinition():
         if(definition['FileName'] != None):
             openFile(definition['FileName'].replace("'","''"), definition['Line'], definition['Column'])
         else:
-            print "Not found"
+            print("Not found")
 
 def openFile(filename, line, column):
     vim.command("call OmniSharp#JumpToLocation('%(filename)s', %(line)s, %(column)s)" % locals())
@@ -159,9 +174,9 @@ def build():
 
     success = js["Success"]
     if success:
-        print "Build succeeded"
+        print("Build succeeded")
     else:
-        print "Build failed"
+        print("Build failed")
 
     return quickfixes_from_js(js, 'QuickFixes')
 
@@ -194,7 +209,7 @@ def addReference():
     js = getResponse("/addreference", parameters)
     if js != '':
         message = json.loads(js)['Message']
-        print message
+        print(message)
 
 def findSyntaxErrors():
     js = getResponse('/syntaxerrors')

@@ -1,4 +1,22 @@
-import vim, urllib2, urllib, urlparse, logging, json, os, os.path, cgi, types, threading
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import logging
+import json
+import os
+import types
+import threading
+
+try:
+    from urllib import parse as urlparse
+    from urllib.parse import urlencode
+    from urllib import request
+except ImportError:
+    import urllib2 as request
+    import urlparse
+    from urllib import urlencode
+
+import vim  # pylint: disable=import-error
 
 class ThreadUrl(threading.Thread):
 
@@ -11,8 +29,8 @@ class ThreadUrl(threading.Thread):
 
     def run(self):
         try:
-            proxy = urllib2.ProxyHandler({})
-            opener = urllib2.build_opener(proxy)
+            proxy = request.ProxyHandler({})
+            opener = request.build_opener(proxy)
             response = opener.open(self.url, self.data, self.timeout)
             self.callback(response.read())
         except:
@@ -41,7 +59,7 @@ def get_response_async(endPoint, callback, params=None, timeout=None):
         host = vim.eval('b:OmniSharp_host')
 
     target = urlparse.urljoin(host, endPoint)
-    data = urllib.urlencode(parameters).encode('utf-8')
+    data = urlencode(parameters).encode('utf-8')
 
     def urlopen_callback(data):
         #print(data)
