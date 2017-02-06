@@ -4,29 +4,14 @@ endif
 
 let g:OmniSharp_loaded = 1
 
-if !(has('python') || has('python3'))
+if !OmniSharp#lib#py#exists()
   echoerr 'Error: OmniSharp requires Vim compiled with +python or +python3'
   finish
 endif
 
-let s:pycmd = has('python3') ? 'python3' : 'python'
-let s:pyfile = has('python3') ? 'py3file' : 'pyfile'
-if exists('*py3eval')
-  let s:pyeval = function('py3eval')
-elseif exists('*pyeval')
-  let s:pyeval = function('pyeval')
-else
-  exec s:pycmd 'import json, vim'
-  function! s:pyeval(e)
-    exec s:pycmd 'vim.command("return " + json.dumps(eval(vim.eval("a:e"))))'
-  endfunction
-endif
-
 "Load python/omnisharp/OmniSharp.py
-let s:py_path = join([expand('<sfile>:p:h:h'), 'python', 'omnisharp'], '/')
-exec s:pycmd "sys.path.append(r'" . s:py_path . "')"
-exec s:pyfile fnameescape(s:py_path . '/Completion.py')
-exec s:pyfile fnameescape(s:py_path . '/OmniSharp.py')
+call OmniSharp#lib#py#load('/Completion.py')
+call OmniSharp#lib#py#load('/OmniSharp.py')
 
 let g:OmniSharp_port = get(g:, 'OmniSharp_port', 2000)
 
